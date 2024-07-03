@@ -1,30 +1,54 @@
+/* eslint-disable no-undef */
 /* eslint-disable react/react-in-jsx-scope */
+import { useEffect, useState, useRef } from 'react';
 import './App.css';
-import { useState, useEffect } from 'react';
+
+const useMyHook = (cb, delay = 1000) => {
+  const saveCb = useRef();
+
+  useEffect(() => {
+    saveCb.current = cb;
+  }, [cb]);
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      saveCb.current();
+    }, delay);
+
+    return () => clearInterval(interval);
+  }, [delay]);
+};
 
 function App() {
   const [counter, setCounter] = useState(0);
+  const [delay, setDelay] = useState(1000);
+  const [incrementor, setIncrementor] = useState(100);
 
-  //componentDidUpdate - executa toda vez que o component atualiza
-
-  useEffect(() => {
-    console.log('componentDidUpdate');
-  });
-
-  //componentDidMount - 1x
-  useEffect(() => {
-    console.log('componentDidMount');
-  }, []);
-
-  //Com dependências - executa quando a dependência tem mudanças.
-  useEffect(() => {
-    console.log('Com dependência');
-  }, [counter]);
+  useMyHook(() => setCounter((c) => c + 1), delay);
 
   return (
-    <div className="App">
+    <div>
       <h1>Contador: {counter}</h1>
-      <button onClick={() => setCounter(counter + 1)}>+</button>
+      <h1>Delay: {delay}</h1>
+      <button
+        onClick={() => {
+          setDelay((d) => d + incrementor);
+        }}
+      >
+        +{incrementor}
+      </button>
+      <button
+        onClick={() => {
+          setDelay((d) => d - incrementor);
+        }}
+      >
+        -{incrementor}
+      </button>
+      <input
+        type="number"
+        value={incrementor}
+        onChange={(e) => setIncrementor(Number(e.target.value))}
+      />
     </div>
   );
 }
